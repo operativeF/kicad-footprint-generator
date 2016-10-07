@@ -87,7 +87,7 @@ for rows in [1,2]:
                                    {'x':0,'y':y1-d}])
                                    
         #add the model
-        kicad_mod.model = "Pin_Headers.3dshapes/" + footprint_name + ".wrl"
+        kicad_mod.model = "Pin_Headers.3dshapes/" + footprint_name + ".step"
         kicad_mod.model_rot['z'] = 90
         if rows == 2:
             kicad_mod.model_pos['x'] = pitch * 0.5 / 25.4

@@ -222,7 +222,7 @@ if __name__ == '__main__':
             footprint.append(RectLine(start=[nx1, yo2 - wall],end=[nx2,yo2]))
             """ 
             #Add a model
-            footprint.append(Model(filename="Connectors_JST.3dshapes/" + fp_name + ".wrl"))
+            footprint.append(Model(filename="Connectors_JST.3dshapes/" + fp_name + ".step"))
             
             #filename
             filename = output_dir + fp_name + ".kicad_mod"

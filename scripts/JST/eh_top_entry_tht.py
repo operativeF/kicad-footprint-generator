@@ -90,7 +90,7 @@ for pincount in range(2,16):
     
     kicad_mod.addRectLine({'x':x1-cy,'y':y1-cy},{'x':x2+cy,'y':y2+cy},"F.CrtYd",0.05)
     
-    kicad_mod.model = "Connectors_JST.3dshapes/" + footprint_name + ".wrl"
+    kicad_mod.model = "Connectors_JST.3dshapes/" + footprint_name + ".step"
     
     #shift the model along
     

@@ -89,7 +89,7 @@ for rows in [1,2]:
                                    {'y':0,'x':y1-d}])
                                    
         #add the model
-        kicad_mod.model = "Socket_Strips.3dshapes/" + footprint_name + ".wrl"
+        kicad_mod.model = "Socket_Strips.3dshapes/" + footprint_name + ".step"
         kicad_mod.model_rot['z'] = 0
         if rows == 2:
             kicad_mod.model_pos['y'] = -pitch * 0.5 / 25.4

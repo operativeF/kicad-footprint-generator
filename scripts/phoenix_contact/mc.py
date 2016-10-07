@@ -147,7 +147,7 @@ for model, params in to_generate.iteritems():
 
     kicad_mod.append(create_marker(crtyd_top_left[1]))
 
-    p3dname = packages_3d + footprint_name + ".wrl"
+    p3dname = packages_3d + footprint_name + ".step"
     kicad_mod.append(Model(filename=p3dname,
                            at=[0, 0, 0], scale=[1, 1, 1], rotate=[0, 0, 0]))
 

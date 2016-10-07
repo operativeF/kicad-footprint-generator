@@ -179,7 +179,7 @@ if __name__ == '__main__':
             footprint.append(Pad(type=Pad.TYPE_NPTH, shape=Pad.SHAPE_CIRCLE, at=[A+1.6,-2], size=1.1, drill=1.1, layers=["*.Cu"]))
         
         #Add a model
-        footprint.append(Model(filename="Connectors_JST.3dshapes/" + fp_name + ".wrl"))
+        footprint.append(Model(filename="Connectors_JST.3dshapes/" + fp_name + ".step"))
         
         
         #filename

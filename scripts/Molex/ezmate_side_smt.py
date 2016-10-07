@@ -174,7 +174,7 @@ for pincount in range(2,8):
    
     
     """
-    kicad_mod.model = "Connectors_Molex.3dshapes/" + footprint_name + ".wrl"
+    kicad_mod.model = "Connectors_Molex.3dshapes/" + footprint_name + ".step"
     
     #shift the model along
     
