@@ -31,7 +31,8 @@ class Pad(Node):
     SHAPE_OVAL = 'oval'
     SHAPE_RECT = 'rect'
     SHAPE_TRAPEZE = 'trapezoid'
-    _SHAPES = [SHAPE_CIRCLE, SHAPE_OVAL, SHAPE_RECT, SHAPE_TRAPEZE]
+    SHAPE_ROUNDRECT = 'roundrect'
+    _SHAPES = [SHAPE_CIRCLE, SHAPE_OVAL, SHAPE_RECT, SHAPE_TRAPEZE, SHAPE_ROUNDRECT]
 
     def __init__(self, **kwargs):
         Node.__init__(self)
@@ -45,6 +46,8 @@ class Pad(Node):
         self._initDrill(**kwargs)  # requires pad type and offset
         self._initSolderPasteMargin(**kwargs)
         self._initLayers(**kwargs)
+        self._initTrapezoidShape(**kwargs) # requires trapezoid delta and horizontal / vertical direction
+        self._initRoundrectCornerSize(**kwargs)
 
     def _initNumber(self, **kwargs):
         self.number = kwargs.get('number')
@@ -81,6 +84,10 @@ class Pad(Node):
 
     def _initOffset(self, **kwargs):
         self.offset = Point(kwargs.get('offset', [0, 0]))
+
+    def _initTrapezoidDelta(self, **kwargs):
+        if self.type in [Pad.SHAPE_TRAPEZE]
+            if not kwargs.get('')
 
     def _initDrill(self, **kwargs):
         if self.type in [Pad.TYPE_THT, Pad.TYPE_NPTH]:
