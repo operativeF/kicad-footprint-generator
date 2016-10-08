@@ -19,22 +19,33 @@ import sys
 import os
 
 output_dir = os.getcwd()
+_3dshapes = "Connectors_JST.3dshapes/"
+ref_on_ffab = False
+fab_line_width = 0.15
 
 #if specified as an argument, extract the target directory for output footprints
 if len(sys.argv) > 1:
     out_dir = sys.argv[1]
-    
+
     if os.path.isabs(out_dir) and os.path.isdir(out_dir):
         output_dir = out_dir
+        print out_dir
     else:
-        out_dir = os.path.join(os.getcwd(),out_dir)
-        if os.path.isdir(out_dir):
-            output_dir = out_dir
+        output_dir = os.path.join(os.getcwd(),out_dir)
+
+if len(sys.argv) > 2:
+    _3dshapes = sys.argv[2]
+    ref_on_ffab = True
+    fab_line_width = 0.05
 
 if output_dir and not output_dir.endswith(os.sep):
     output_dir += os.sep
-        
+
+if not os.path.isdir(output_dir): #returns false if path does not yet exist!! (Does not check path validity)
+    os.makedirs(output_dir)
+
 #import KicadModTree files
+# export PYTHONPATH="${PYTHONPATH}<path to kicad-footprint-generator directory>"
 sys.path.append("..\\..")
 from KicadModTree import *
 from KicadModTree.nodes.specialized.PadArray import PadArray
@@ -46,7 +57,7 @@ Datasheet: http://www.jst-mfg.com/product/pdf/eng/eXH.pdf
 
 """
 pitch = 2.50
-boss = True
+boss = False
 if boss:
     pincount = range(2,13)
 else:
@@ -62,129 +73,151 @@ if boss:
 prefix = "JST_XH_"
 suffix = "_{n:02}x{p:.2f}mm_Straight"
 
+fab_first_marker_w = 1.25
+fab_first_marker_h = 1
+
 #FP description and tags
 
 if __name__ == '__main__':
 
     for pins in pincount:
-        
+
         #calculate fp dimensions
         A = (pins - 1) * pitch
         B = A + 4.9
-        
+
         #connector thickness
         T = 5.75
-        
+
         #corners
         x1 = -2.45
         x2 = x1 + B
-        
+
+
         x_mid = (x1 + x2) / 2
-        
-        y1 = -3.4
+
+        y1 = -2.35
         y2 = y1 + T
-    
+
         #generate the name
         fp_name = prefix + part.format(n=pins) + suffix.format(n=pins, p=pitch)
 
         footprint = Footprint(fp_name)
-        
+
         description = "JST XH series connector, " + part.format(n=pins) + ", top entry type, through hole"
 
         if boss:
             description += ", with boss"
-        
+
         #set the FP description
         footprint.setDescription(description)
-        
+
         tags = "connector jst xh tht top vertical 2.50mm"
-        
+
         if boss:
             tags += " boss"
         #set the FP tags
         footprint.setTags(tags)
 
+        #draw simple outline on F.Fab layer
+        footprint.append(RectLine(start=[x1,y1],end=[x2,y2],layer='F.Fab', width=fab_line_width))
+        fab_marker_left = -fab_first_marker_w/2.0
+        fab_marker_bottom = y1 + fab_first_marker_h
+        poly_fab_marker = [
+            {'x':fab_marker_left, 'y':y1},
+            {'x':0, 'y':fab_marker_bottom},
+            {'x':fab_marker_left + fab_first_marker_w, 'y':y1}
+        ]
+        footprint.append(PolygoneLine(polygone=poly_fab_marker, layer='F.Fab', width=fab_line_width))
         # set general values
-        footprint.append(Text(type='reference', text='REF**', at=[x_mid,-5], layer='F.SilkS'))
-        footprint.append(Text(type='value', text=fp_name, at=[x_mid,4], layer='F.Fab'))
+        #footprint.append(Text(type='reference', text='REF**', at=[x_mid,-3.5], layer='F.SilkS'))
+
+        ref_pos_1=[x_mid +(1.5 if pins == 2 else 0),-3.5]
+        ref_pos_2=[x_mid, 2]
+        footprint.append(Text(type='reference', text='REF**', layer=('F.Fab' if ref_on_ffab else'F.SilkS'),
+            at=(ref_pos_2 if ref_on_ffab else ref_pos_1)))
+        if ref_on_ffab:
+            footprint.append(Text(type='user', text='%R', at=ref_pos_1, layer='F.SilkS'))
+
+        footprint.append(Text(type='value', text=fp_name, at=[x_mid,4.5], layer='F.Fab'))
 
         if pins == 2:
             drill = 1.0
         else:
             drill = 0.9
-            
-        #generate the pads
-        pa = PadArray(pincount=pins, x_spacing=pitch, type=Pad.TYPE_THT, shape=Pad.SHAPE_CIRCLE, size=1.5, drill=drill, layers=['*.Cu','*.Mask'])
-        
-        footprint.append(pa)
-        
-        #draw the courtyard
-        cy = RectLine(start=[x1,y1],end=[x2,y2],layer='F.CrtYd',width=0.05,offset = 0.5)
-        footprint.append(cy)
-        
-        #offset the outline around the connector
-        off = 0.15
-        
-        xo1 = x1 - off
-        yo1 = y1 - off
-        
-        xo2 = x2 + off
-        yo2 = y2 + off
-        
-        #thickness of the notches
-        notch = 1.5
-        
-        #wall thickness of the outline
-        wall = 0.6
-        
-        #draw the outline of the connector
-        
-        footprint.append(RectLine(start=[xo1,yo1],end=[xo2,yo2]))
-        
-        outline = [
-        {'x': xo1,'y': yo2-wall - 1},
-        {'x': xo1 + wall,'y': yo2-wall - 1},
-        {'x': xo1 + wall,'y': yo1+wall},
-        {'x': x_mid,'y': yo1+wall},
-        ]
-        
-        if not boss:
-            
-            footprint.append(PolygoneLine(polygone=outline))
-            
-            footprint.append(PolygoneLine(polygone=outline,x_mirror=x_mid))
-        else:
-            
-            outline.append({'x': xo2-wall,'y': yo1+wall})
-            footprint.append(PolygoneLine(polygone=outline))
-        
-            outline = [
-            {'x': xo2,'y': yo2-wall-1},
-            {'x': xo2-wall,'y': yo2-wall-1},
-            {'x': xo2-wall,'y': -1},
-            ]
 
-            footprint.append(PolygoneLine(polygone=outline))
-        
-        footprint.append(RectLine(start=[xo1,yo2-wall],end=[xo1+notch,yo2]))
-        footprint.append(RectLine(start=[xo2,yo2-wall],end=[xo2-notch,yo2]))
-        
-        #draw the middle tab
-        nx1 = -0.5 + notch
-        nx2 = A + 0.5 - notch
-        footprint.append(RectLine(start=[nx1, yo2 - wall],end=[nx2,yo2]))
-        
-        #add a boss (maybe)
-        if boss:
-            footprint.append(Pad(type=Pad.TYPE_NPTH, shape=Pad.SHAPE_CIRCLE, at=[A+1.6,-2], size=1.1, drill=1.1, layers=["*.Cu"]))
-        
+        #generate the pads
+        pa = PadArray(pincount=pins, x_spacing=pitch, type=Pad.TYPE_THT, shape=Pad.SHAPE_CIRCLE, size=1.75, drill=drill, layers=['*.Cu','*.Mask'])
+
+        footprint.append(pa)
+
+        #draw the courtyard
+        cy = RectLine(start=[x1,y1],end=[x2,y2],layer='F.CrtYd',width=0.05,offset = 0.5,grid=0.05)
+        footprint.append(cy)
+
+        #draw the connector outline
+        out = RectLine(start=[x1,y1],end=[x2,y2],offset=0.1)
+        footprint.append(out)
+
+        #wall thickness w
+        w = 0.75
+
+        #gap size g
+        g = 1.5
+
+        off = 0.1
+
+        x1 -= off
+        y1 -= off
+
+        x2 += off
+        y2 += off
+
+        #draw the center tab
+        footprint.append(RectLine(start=[g/2,y1],end=[A-g/2,y1+w]))
+
+        #add left tab
+        footprint.append(RectLine(start=[x1,y1],end=[-g/2,y1+w]))
+        #right tab
+        footprint.append(RectLine(start=[A+g/2,y1],end=[x2,y1+w]))
+
+        #add other line
+        line = [
+        {'x': x1,'y': y1+w+g},
+        {'x': x1+w,'y': y1+w+g},
+        {'x': x1+w,'y': y2-w},
+        {'x': A/2,'y': y2-w},
+        ]
+
+        footprint.append(PolygoneLine(polygone=line))
+        footprint.append(PolygoneLine(polygone=line,x_mirror=A/2))
+
+        #pin-1 marker
+        y =  -2.75
+        m = 0.3
+
+        pin = [
+        {'x': 0,'y': y},
+        {'x': -m,'y': y-2*m},
+        {'x': m,'y': y-2*m},
+        {'x': 0,'y': y},
+        ]
+
+        footprint.append(PolygoneLine(polygone=pin))
+
         #Add a model
+<<<<<<< HEAD
         footprint.append(Model(filename="Connectors_JST.3dshapes/" + fp_name + ".step"))
         
         
+=======
+        footprint.append(Model(filename=_3dshapes + fp_name + ".wrl"))
+
+
+>>>>>>> 8b1486e2aff065e28d1135a1e4ad7b54171312c5
         #filename
         filename = output_dir + fp_name + ".kicad_mod"
-        
+
 
         file_handler = KicadFileHandler(footprint)
         file_handler.writeFile(filename)
