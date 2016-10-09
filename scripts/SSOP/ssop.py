@@ -7,7 +7,8 @@ sys.path.append(os.path.join(sys.path[0], "../.."))  # enable package import fro
 
 
 from KicadModTree import * # NOQA
-from KicadModTree.nodes.specialized.PadArray import PadArray
+from KicadModTree.Rules import *
+# from KicadModTree.nodes.specialized.PadArray import PadArray
 
 pitch = 0.65
 

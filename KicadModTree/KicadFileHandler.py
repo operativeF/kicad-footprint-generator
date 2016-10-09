@@ -18,15 +18,7 @@ along with kicad-footprint-generator. If not, see < http://www.gnu.org/licenses/
 from KicadModTree.FileHandler import FileHandler
 from KicadModTree.util.kicad_util import *
 from KicadModTree.nodes.base.Pad import Pad  # TODO: why .KicadModTree is not enough?
-
-
-DEFAULT_LAYER_WIDTH = {'F.SilkS': 0.15,
-                       'B.SilkS': 0.15,
-                       'F.CrtYd': 0.05,
-                       'B.CrtYd': 0.05}
-
-DEFAULT_WIDTH = 0.15
-
+from KicadModTree.Rules import * # contains the info for defaults for layers; IPC standards
 
 def get_layer_width(layer, width=None):
     if width is not None:
