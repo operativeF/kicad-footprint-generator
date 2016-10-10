@@ -29,28 +29,29 @@ DEFAULT_LAYER_WIDTH = {'F.SilkS': 0.15,
 DEFAULT_WIDTH = 0.15
 
 # Affects component orientation; see IPC-7351B/C
-ZERO_ORIENTATION = ['LevelA', 'LevelB']
+# ZERO_ORIENTATION = ['LevelA', 'LevelB']
 
 # Contour courtyard type introduced with IPC-7351C
 COURTYARD_TYPE = ['Rectangle', 'Contour']
 
-POLARITY_MARKER = ['Circle',
-                   'Dot',
-                   'Square',
-                   'FilledSquare,'
-                   'Rectangle',
-                   'Triangle',
-                   'Dash',
-                   'Arc',
-                   'Diode']
+# POLARITY_MARKER = {'Circle',
+#                    'Dot',
+#                    'Square',
+#                    'FilledSquare',
+#                    'Rectangle',
+#                    'Triangle',
+#                    'Dash',
+#                    'Arc',
+#                    'Diode'}
 
 ASSY_OUTLINE_POLARITY_NOTCH = 1.00
+
+DRAW_PAD_FAB = True
 
 ORIGIN_PLACEMENT = ['Centroid', 'Pin_1']
 
 # Placed on Courtyard layer(s); 0.05 width
-ORIGIN_CROSSHAIR = {'CircleDiameter': 0.50,
-                   'CrosshairLengths': 0.70}
+ORIGIN_CROSSHAIR = {'CircleDiameter': 0.50, 'CrosshairLengths': 0.70}
 
 # Round pad placements to nearest 0.01mm
 PAD_PLACEMENT_ROUNDING = 0.01
@@ -68,8 +69,9 @@ FABRICATION_TOL = 0.05
 DENSITY_LEVEL = ['Least', 'Nominal', 'Most']
 
 SILK_CLEARANCE = 0.15
-
 SILK_OUTLINES = ['MAX', 'NOM', 'MIN']
-
 SILK_OUTLINE_ROUNDING = 0.01
-SILK_OUTLINE_DEFAULT = SILK_OUTLINES['MAX']
+
+### DEFAULTS ###
+DEFAULT_SILK_OUTLINE = 'MAX'
+MODEL_3D_TYPE = 'step'

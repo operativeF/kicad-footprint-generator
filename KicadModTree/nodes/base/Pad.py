@@ -31,16 +31,12 @@ class Pad(Node):
     SHAPE_OVAL = 'oval'
     SHAPE_RECT = 'rect'
     SHAPE_TRAPEZE = 'trapezoid'
-<<<<<<< HEAD
     SHAPE_ROUNDRECT = 'roundrect'
     _SHAPES = [SHAPE_CIRCLE, SHAPE_OVAL, SHAPE_RECT, SHAPE_TRAPEZE, SHAPE_ROUNDRECT]
-=======
-    _SHAPES = [SHAPE_CIRCLE, SHAPE_OVAL, SHAPE_RECT, SHAPE_TRAPEZE]
-    
+
     LAYERS_SMT = ['F.Cu','F.Mask','F.Paste']
     LAYERS_THT = ['*.Cu','*.Mask']
     LAYERS_NPTH = ['*.Cu']
->>>>>>> 8b1486e2aff065e28d1135a1e4ad7b54171312c5
 
     def __init__(self, **kwargs):
         Node.__init__(self)
@@ -54,8 +50,9 @@ class Pad(Node):
         self._initDrill(**kwargs)  # requires pad type and offset
         self._initSolderPasteMargin(**kwargs)
         self._initLayers(**kwargs)
-        self._initTrapezoidShape(**kwargs) # requires trapezoid delta and horizontal / vertical direction
-        self._initRoundrectCornerSize(**kwargs)
+        self._initTrapezoidDelta(**kwargs) # requires trapezoid delta and horizontal / vertical direction
+        self._initRoundRectRatio(**kwargs)
+        #self._initPadOutlineFab(**kwargs)
 
     def _initNumber(self, **kwargs):
         self.number = kwargs.get('number','""') #default to an un-numbered pad
@@ -92,10 +89,29 @@ class Pad(Node):
 
     def _initOffset(self, **kwargs):
         self.offset = Point(kwargs.get('offset', [0, 0]))
-
+    
     def _initTrapezoidDelta(self, **kwargs):
-        if self.type in [Pad.SHAPE_TRAPEZE]
-            if not kwargs.get('')
+        if self.type in [Pad.SHAPE_TRAPEZE]:
+            if not kwargs.get('rect_delta'):
+                raise KeyError('trapezoid delta required for trapezoidal pad (horizontal, vertical) (like "delta=[1,0]")')
+            if type(kwargs.get('rect_delta')) in [int, float]:
+                self.rect_delta = [kwargs.get('h'), kwargs.get('v')]
+        else:
+            self.rect_delta = None
+            if kwargs.get('rect_delta'):
+                pass
+
+    def _initRoundRectRatio(self, **kwargs):
+        if self.shape in [Pad.SHAPE_ROUNDRECT]:
+            if not kwargs.get('roundrect_ratio'):
+                raise KeyError('roundrect ratio required for roundrect pad (just a ratio of pad size)')
+            if type(kwargs.get('roundrect_ratio')) in [float]:
+                self.roundrect_ratio = kwargs.get('roundrect_ratio')
+        ### TODO: Implement maximum radius of 0.20mm, maybe generate a warning?
+        else:
+            self.roundrect_ratio = None
+            if kwargs.get('roundrect_ratio'):
+                pass
 
     def _initDrill(self, **kwargs):
         if self.type in [Pad.TYPE_THT, Pad.TYPE_NPTH]:
@@ -132,10 +148,16 @@ class Pad(Node):
         render_strings.append(lispString(self.shape))
         render_strings.append(self.at.render('(at {x} {y})'))
         render_strings.append(self.size.render('(size {x} {y})'))
+        render_strings.append('(rect_delta {})'.format(self.rect_delta))
         render_strings.append('(drill {})'.format(self.drill))
         render_strings.append('(layers {})'.format(' '.join(self.layers)))
+        render_strings.append('(roundrect_ratio {})'.format(self.roundrect_ratio))
 
         render_text = Node._getRenderTreeText(self)
         render_text += '({})'.format(' '.join(render_strings))
 
         return render_text
+        
+    # **TODO** Implement Pad fabrication outlines
+    # def _initPadOutlineFab(self, **kwargs):
+    #     if not kwargs.get()

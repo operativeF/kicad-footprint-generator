@@ -20,3 +20,6 @@ from KicadModTree.nodes import *
 
 # File Handlers
 from KicadModTree.KicadFileHandler import KicadFileHandler
+
+# user variables and options
+from KicadModTree.Rules import *
