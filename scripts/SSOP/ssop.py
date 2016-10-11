@@ -2,6 +2,7 @@
 
 import sys
 import os
+from collections import namedtuple
 
 
 sys.path.append("..\\..")
@@ -10,23 +11,330 @@ from KicadModTree.nodes.specialized.PadArray import PadArray
 from KicadModTree.nodes.base.Pad import Pad
 import KicadModTree.Rules as rules
 
-# Pin Count, Lmin, Lmax,  Wmin, Wmax, W+pins_min, W+pin_max, Hmax, Pitch
-ssop_pkgs = [
-[16, 5.90,   6.50,   5.00,  5.60,  7.40,  8.20,  2.0,  0.65],  # SSOP-16
-[16, 4.801,  4.978,  3.810, 3.988, 5.817, 6.198, 2.0,  0.635], # SSOP-16-N
-[20, 6.90,   7.50,   5.00,  5.60,  7.40,  8.20,  2.0,  0.65],  # SSOP-20
-[20, 8.560,  8.738,  3.810, 3.988, 5.817, 6.198, 2.0,  0.635], # SSOP-20-N
-[24, 8.560,  8.738,  3.810, 3.988, 5.817, 6.198, 2.0,  0.635], # SSOP-24-N
-[24, 7.90,   8.50,   5.00,  5.60,  7.40,  8.20,  2.0,  0.65],  # SSOP-24
-[28, 9.90,   10.50,  5.00,  5.60,  7.40,  8.20,  2.0,  0.65],  # SSOP-28
-[28, 9.804,  9.982,  3.810, 3.988, 5.817, 6.198, 1.75, 0.635], # SSOP-28-N
-[36, 12.50,  13.10,  5.00,  5.60,  7.40,  8.20,  2.0,  0.65],  # SSOP-36
-[36, 15.291, 15.545, 7.417, 7.595, 10.11, 10.55, 2.64, 0.80],  # SSOP-36-W
-[44, 12.50,  13.10,  5.00,  5.60,  7.40,  8.20,  2.0,  0.50],  # SSOP-44
-[44, 17.73,  17.93,  7.417, 7.595, 10.11, 10.55, 2.64, 0.80],  # SSOP-44-W
-[48, 12.50,  13.10,  5.00,  5.60,  7.40,  8.20,  2.0,  0.50],  # SSOP-48
-]
+Params = namedtuple("Params", [
+    'pins',
+    'lmin',
+    'lmax',
+    'wmin',
+    'wmax',
+    'wpmin',
+    'wpmax',
+    'hmax',
+    'pitch'
+])
 
+ssop = {}
+
+ssop['16'] = Params(
+    pins = 16,
+    
+    lmin = 5.90,
+    lmax = 6.50,
+
+    wmin = 5.00,
+    wmax = 5.60,
+
+    wpmin = 7.40,
+    wpmax = 8.20,
+
+    hmax = 2.0,
+
+    pitch = 0.65,
+)
+
+ssop['16-N'] = Params(
+    pins = 16,
+    
+    lmin = 4.801,
+    lmax = 4.978,
+
+    wmin = 3.810,
+    wmax = 3.988,
+
+    wpmin = 5.817,
+    wpmax = 6.198,
+
+    hmax = 2.0,
+
+    pitch = 0.635,
+)
+
+ssop['20'] = Params(
+    pins = 20,
+    
+    lmin = 6.90,
+    lmax = 7.50,
+
+    wmin = 5.00,
+    wmax = 5.60,
+
+    wpmin = 7.40,
+    wpmax = 8.20,
+
+    hmax = 2.0,
+
+    pitch = 0.65,
+)
+
+ssop['20-N'] = Params(
+    pins = 20,
+    
+    lmin = 8.560,
+    lmax = 8.738,
+
+    wmin = 3.810,
+    wmax = 3.988,
+
+    wpmin = 5.817,
+    wpmax = 6.198,
+
+    hmax = 2.0,
+
+    pitch = 0.635,
+)
+
+ssop['24-N'] = Params(
+    pins = 24,
+    
+    lmin = 8.560,
+    lmax = 8.738,
+
+    wmin = 3.810,
+    wmax = 3.988,
+
+    wpmin = 5.817,
+    wpmax = 6.198,
+
+    hmax = 2.0,
+
+    pitch = 0.635,
+)
+
+ssop['24'] = Params(
+    pins = 24,
+    
+    lmin = 7.90,
+    lmax = 8.50,
+
+    wmin = 5.00,
+    wmax = 5.60,
+
+    wpmin = 7.40,
+    wpmax = 8.20,
+
+    hmax = 2.0,
+
+    pitch = 0.65,
+)
+
+ssop['28'] = Params(
+    pins = 28,
+    
+    lmin = 9.90,
+    lmax = 10.50,
+
+    wmin = 5.00,
+    wmax = 5.60,
+
+    wpmin = 7.40,
+    wpmax = 8.20,
+
+    hmax = 2.0,
+
+    pitch = 0.65,
+)
+
+ssop['28-N'] = Params(
+    pins = 28,
+    
+    lmin = 9.804,
+    lmax = 9.982,
+
+    wmin = 3.810,
+    wmax = 3.988,
+
+    wpmin = 5.817,
+    wpmax = 6.198,
+
+    hmax = 1.75,
+
+    pitch = 0.635,
+)
+
+ssop['36'] = Params(
+    pins = 36,
+    
+    lmin = 12.50,
+    lmax = 13.10,
+
+    wmin = 5.00,
+    wmax = 5.60,
+
+    wpmin = 7.40,
+    wpmax = 8.20,
+
+    hmax = 2.0,
+
+    pitch = 0.65,
+)
+
+ssop['36-W'] = Params(
+    pins = 36,
+    
+    lmin = 15.291,
+    lmax = 15.545,
+
+    wmin = 7.417,
+    wmax = 7.595,
+
+    wpmin = 10.11,
+    wpmax = 10.55,
+
+    hmax = 2.64,
+
+    pitch = 0.80,
+)
+
+ssop['44'] = Params(
+    pins = 44,
+    
+    lmin = 12.50,
+    lmax = 13.10,
+
+    wmin = 5.00,
+    wmax = 5.60,
+
+    wpmin = 7.40,
+    wpmax = 8.20,
+
+    hmax = 2.0,
+
+    pitch = 0.50,
+)
+
+ssop['44-W'] = Params(
+    pins = 44,
+    
+    lmin = 17.73,
+    lmax = 17.93,
+
+    wmin = 7.417,
+    wmax = 7.595,
+
+    wpmin = 10.11,
+    wpmax = 10.55,
+
+    hmax = 2.64,
+
+    pitch = 0.80,
+)
+
+ssop['48'] = Params(
+    pins = 48,
+    
+    lmin = 12.50,
+    lmax = 13.10,
+
+    wmin = 5.00,
+    wmax = 5.60,
+
+    wpmin = 7.40,
+    wpmax = 8.20,
+
+    hmax = 2.0,
+
+    pitch = 0.50,
+)
+
+# Pin Count, Lmin, Lmax,  Wmin, Wmax, W+pins_min, W+pin_max, Hmax, Pitch
+
+dlevels = namedtuple("dlevels", [
+    LevelA,
+    LevelB,
+    LevelC,
+])
+
+dattr = namedtuple("dattr", [
+    'toe',
+    'toe_round',
+    'heel',
+    'heel_round',
+    'side',
+    'side_round',
+    'crtyd_ex',
+])
+
+ssop['0.50'] = dlevels(
+    LevelA['A'] = dattr(
+        toe = 0.55,
+        toe_round = '0.2f',
+        heel = 0.45,
+        heel_round = '0.2f',
+        side = 0.05,
+        side_round = '0.2f',
+        crtyd_ex = 0.5,
+    ),
+    LevelB['B'] = dattr(
+        toe = 0.55,
+        toe_round = '0.2f',
+        heel = 0.45,
+        heel_round = '0.2f',
+        side = 0.05,
+        side_round = '0.2f',
+        crtyd_ex = 0.5,
+    ),
+    LevelC['C'] = dattr(
+        toe = 0.55,
+        toe_round = '0.2f',
+        heel = 0.45,
+        heel_round = '0.2f',
+        side = 0.05,
+        side_round = '0.2f',
+        crtyd_ex = 0.5,
+    ),
+)
+
+ssop['0.635'] = dlevels(
+    LevelA['A'] = dattr(
+        toe = 0.55,
+        toe_round = '0.2f',
+        heel = 0.45,
+        heel_round = '0.2f',
+        side = 0.05,
+        side_round = '0.2f',
+        crtyd_ex = 0.5,
+    ),
+    LevelB['B'] = dattr(
+        toe = 0.55,
+        toe_round = '0.2f',
+        heel = 0.45,
+        heel_round = '0.2f',
+        side = 0.05,
+        side_round = '0.2f',
+        crtyd_ex = 0.5,
+    ),
+    LevelC['C'] = dattr(
+        toe = 0.55,
+        toe_round = '0.2f',
+        heel = 0.45,
+        heel_round = '0.2f',
+        side = 0.05,
+        side_round = '0.2f',
+        crtyd_ex = 0.5,
+    ),
+)
+
+# ssop['0.65'] = dlevels(
+#     LevelA = [],
+#     LevelB = [],
+#     LevelC = [],
+# )
+
+# ssop['0.80'] = dlevels(
+#     LevelA = [],
+#     LevelB = [],
+#     LevelC = [],
+# )
 # courtyard = COURTYARD_TYPE()
 prefix = "SSOP-"
 
@@ -37,7 +345,7 @@ ssop_lead_dims = [0.95, 0.38]
 
 
 
-for ssop_pkg in ssop_pkgs:
+for k in ssop.keys():
     
     # extract information
     pnum, lmin, lmax, wmin, wmax, wpmin, wpmax, hmax, pitch = ssop_pkg
