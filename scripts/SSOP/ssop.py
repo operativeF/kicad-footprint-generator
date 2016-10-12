@@ -11,16 +11,22 @@ from KicadModTree.nodes.specialized.PadArray import PadArray
 from KicadModTree.nodes.base.Pad import Pad
 import KicadModTree.Rules as rules
 
+DEFAULT_DENSITY_LEVEL = 'B' # Nominal
+
 Params = namedtuple("Params", [
     'pins',
-    'lmin',
-    'lmax',
-    'wmin',
-    'wmax',
-    'wpmin',
-    'wpmax',
+    'b_wmin',
+    'b_wmax',
+    'b_lmin',
+    'b_lmax',
+    'bl_lmin',
+    'bl_lmax',
     'hmax',
-    'pitch'
+    'tl_min',
+    'tl_max',
+    'tw_min',
+    'tw_max',
+    'pitch',
 ])
 
 ssop = {}
@@ -28,14 +34,14 @@ ssop = {}
 ssop['16'] = Params(
     pins = 16,
     
-    lmin = 5.90,
-    lmax = 6.50,
+    b_wmin = 5.90,
+    b_wmax = 6.50,
 
-    wmin = 5.00,
-    wmax = 5.60,
+    b_lmin = 5.00,
+    b_lmax = 5.60,
 
-    wpmin = 7.40,
-    wpmax = 8.20,
+    bl_lmin = 7.40,
+    bl_lmax = 8.20,
 
     hmax = 2.0,
 
@@ -45,14 +51,14 @@ ssop['16'] = Params(
 ssop['16-N'] = Params(
     pins = 16,
     
-    lmin = 4.801,
-    lmax = 4.978,
+    b_wmin = 4.801,
+    b_wmax = 4.978,
 
-    wmin = 3.810,
-    wmax = 3.988,
+    b_lmin = 3.810,
+    b_lmax = 3.988,
 
-    wpmin = 5.817,
-    wpmax = 6.198,
+    bl_lmin = 5.817,
+    bl_lmax = 6.198,
 
     hmax = 2.0,
 
@@ -62,14 +68,14 @@ ssop['16-N'] = Params(
 ssop['20'] = Params(
     pins = 20,
     
-    lmin = 6.90,
-    lmax = 7.50,
+    b_wmin = 6.90,
+    b_wmax = 7.50,
 
-    wmin = 5.00,
-    wmax = 5.60,
+    b_lmin = 5.00,
+    b_lmax = 5.60,
 
-    wpmin = 7.40,
-    wpmax = 8.20,
+    bl_lmin = 7.40,
+    bl_lmax = 8.20,
 
     hmax = 2.0,
 
@@ -79,14 +85,14 @@ ssop['20'] = Params(
 ssop['20-N'] = Params(
     pins = 20,
     
-    lmin = 8.560,
-    lmax = 8.738,
+    b_wmin = 8.560,
+    b_wmax = 8.738,
 
-    wmin = 3.810,
-    wmax = 3.988,
+    b_lmin = 3.810,
+    b_lmax = 3.988,
 
-    wpmin = 5.817,
-    wpmax = 6.198,
+    bl_lmin = 5.817,
+    bl_lmax = 6.198,
 
     hmax = 2.0,
 
@@ -96,14 +102,14 @@ ssop['20-N'] = Params(
 ssop['24-N'] = Params(
     pins = 24,
     
-    lmin = 8.560,
-    lmax = 8.738,
+    b_wmin = 8.560,
+    b_wmax = 8.738,
 
-    wmin = 3.810,
-    wmax = 3.988,
+    b_lmin = 3.810,
+    b_lmax = 3.988,
 
-    wpmin = 5.817,
-    wpmax = 6.198,
+    bl_lmin = 5.817,
+    bl_lmax = 6.198,
 
     hmax = 2.0,
 
@@ -113,14 +119,14 @@ ssop['24-N'] = Params(
 ssop['24'] = Params(
     pins = 24,
     
-    lmin = 7.90,
-    lmax = 8.50,
+    b_wmin = 7.90,
+    b_wmax = 8.50,
 
-    wmin = 5.00,
-    wmax = 5.60,
+    b_lmin = 5.00,
+    b_lmax = 5.60,
 
-    wpmin = 7.40,
-    wpmax = 8.20,
+    bl_lmin = 7.40,
+    bl_lmax = 8.20,
 
     hmax = 2.0,
 
@@ -130,14 +136,14 @@ ssop['24'] = Params(
 ssop['28'] = Params(
     pins = 28,
     
-    lmin = 9.90,
-    lmax = 10.50,
+    b_wmin = 9.90,
+    b_wmax = 10.50,
 
-    wmin = 5.00,
-    wmax = 5.60,
+    b_lmin = 5.00,
+    b_lmax = 5.60,
 
-    wpmin = 7.40,
-    wpmax = 8.20,
+    bl_lmin = 7.40,
+    bl_lmax = 8.20,
 
     hmax = 2.0,
 
@@ -147,14 +153,14 @@ ssop['28'] = Params(
 ssop['28-N'] = Params(
     pins = 28,
     
-    lmin = 9.804,
-    lmax = 9.982,
+    b_wmin = 9.804,
+    b_wmax = 9.982,
 
-    wmin = 3.810,
-    wmax = 3.988,
+    b_lmin = 3.810,
+    b_lmax = 3.988,
 
-    wpmin = 5.817,
-    wpmax = 6.198,
+    bl_lmin = 5.817,
+    bl_lmax = 6.198,
 
     hmax = 1.75,
 
@@ -164,14 +170,14 @@ ssop['28-N'] = Params(
 ssop['36'] = Params(
     pins = 36,
     
-    lmin = 12.50,
-    lmax = 13.10,
+    b_wmin = 12.50,
+    b_wmax = 13.10,
 
-    wmin = 5.00,
-    wmax = 5.60,
+    b_lmin = 5.00,
+    b_lmax = 5.60,
 
-    wpmin = 7.40,
-    wpmax = 8.20,
+    bl_lmin = 7.40,
+    bl_lmax = 8.20,
 
     hmax = 2.0,
 
@@ -181,14 +187,14 @@ ssop['36'] = Params(
 ssop['36-W'] = Params(
     pins = 36,
     
-    lmin = 15.291,
-    lmax = 15.545,
+    b_wmin = 15.291,
+    b_wmax = 15.545,
 
-    wmin = 7.417,
-    wmax = 7.595,
+    b_lmin = 7.417,
+    b_lmax = 7.595,
 
-    wpmin = 10.11,
-    wpmax = 10.55,
+    bl_lmin = 10.11,
+    bl_lmax = 10.55,
 
     hmax = 2.64,
 
@@ -198,14 +204,14 @@ ssop['36-W'] = Params(
 ssop['44'] = Params(
     pins = 44,
     
-    lmin = 12.50,
-    lmax = 13.10,
+    b_wmin = 12.50,
+    b_wmax = 13.10,
 
-    wmin = 5.00,
-    wmax = 5.60,
+    b_lmin = 5.00,
+    b_lmax = 5.60,
 
-    wpmin = 7.40,
-    wpmax = 8.20,
+    bl_lmin = 7.40,
+    bl_lmax = 8.20,
 
     hmax = 2.0,
 
@@ -215,14 +221,14 @@ ssop['44'] = Params(
 ssop['44-W'] = Params(
     pins = 44,
     
-    lmin = 17.73,
-    lmax = 17.93,
+    b_wmin = 17.73,
+    b_wmax = 17.93,
 
-    wmin = 7.417,
-    wmax = 7.595,
+    b_lmin = 7.417,
+    b_lmax = 7.595,
 
-    wpmin = 10.11,
-    wpmax = 10.55,
+    bl_lmin = 10.11,
+    bl_lmax = 10.55,
 
     hmax = 2.64,
 
@@ -232,110 +238,94 @@ ssop['44-W'] = Params(
 ssop['48'] = Params(
     pins = 48,
     
-    lmin = 12.50,
-    lmax = 13.10,
+    b_wmin = 12.50,
+    b_wmax = 13.10,
 
-    wmin = 5.00,
-    wmax = 5.60,
+    b_lmin = 5.00,
+    b_lmax = 5.60,
 
-    wpmin = 7.40,
-    wpmax = 8.20,
+    bl_lmin = 7.40,
+    bl_lmax = 8.20,
 
     hmax = 2.0,
 
     pitch = 0.50,
 )
 
-# Pin Count, Lmin, Lmax,  Wmin, Wmax, W+pins_min, W+pin_max, Hmax, Pitch
+# Pin Count, b_wmin, b_wmax,  b_lmin, b_lmax, W+pins_min, W+pin_max, Hmax, Pitch
 
-dlevels = namedtuple("dlevels", [
-    LevelA,
-    LevelB,
-    LevelC,
-])
-
-dattr = namedtuple("dattr", [
+d_params = namedtuple("d_params", [
     'toe',
     'toe_round',
     'heel',
     'heel_round',
     'side',
     'side_round',
-    'crtyd_ex',
+    'court_ex',
 ])
 
-ssop['0.50'] = dlevels(
-    LevelA['A'] = dattr(
-        toe = 0.55,
-        toe_round = '0.2f',
-        heel = 0.45,
-        heel_round = '0.2f',
-        side = 0.05,
-        side_round = '0.2f',
-        crtyd_ex = 0.5,
-    ),
-    LevelB['B'] = dattr(
-        toe = 0.55,
-        toe_round = '0.2f',
-        heel = 0.45,
-        heel_round = '0.2f',
-        side = 0.05,
-        side_round = '0.2f',
-        crtyd_ex = 0.5,
-    ),
-    LevelC['C'] = dattr(
-        toe = 0.55,
-        toe_round = '0.2f',
-        heel = 0.45,
-        heel_round = '0.2f',
-        side = 0.05,
-        side_round = '0.2f',
-        crtyd_ex = 0.5,
-    ),
+d_levels = {}
+
+d_levels['A_gt_0.625mm'] = d_params(
+    toe = 0.55,
+    toe_round = '0.2f',
+    heel = 0.45,
+    heel_round = '0.2f',
+    side = 0.05,
+    side_round = '0.2f',
+    court_ex = 0.5,
 )
 
-ssop['0.635'] = dlevels(
-    LevelA['A'] = dattr(
-        toe = 0.55,
-        toe_round = '0.2f',
-        heel = 0.45,
-        heel_round = '0.2f',
-        side = 0.05,
-        side_round = '0.2f',
-        crtyd_ex = 0.5,
-    ),
-    LevelB['B'] = dattr(
-        toe = 0.55,
-        toe_round = '0.2f',
-        heel = 0.45,
-        heel_round = '0.2f',
-        side = 0.05,
-        side_round = '0.2f',
-        crtyd_ex = 0.5,
-    ),
-    LevelC['C'] = dattr(
-        toe = 0.55,
-        toe_round = '0.2f',
-        heel = 0.45,
-        heel_round = '0.2f',
-        side = 0.05,
-        side_round = '0.2f',
-        crtyd_ex = 0.5,
-    ),
+d_levels['B_gt_0.625mm'] = d_params(
+    toe = 0.35,
+    toe_round = '0.2f',
+    heel = 0.35,
+    heel_round = '0.2f',
+    side = 0.02,
+    side_round = '0.2f',
+    court_ex = 0.25,
 )
 
-# ssop['0.65'] = dlevels(
-#     LevelA = [],
-#     LevelB = [],
-#     LevelC = [],
-# )
+d_levels['C_gt_0.625mm'] = d_params(
+    toe = 0.15,
+    toe_round = '0.2f',
+    heel = 0.25,
+    heel_round = '0.2f',
+    side = 0.01,
+    side_round = '0.2f',
+    court_ex = 0.1,
+)
 
-# ssop['0.80'] = dlevels(
-#     LevelA = [],
-#     LevelB = [],
-#     LevelC = [],
-# )
-# courtyard = COURTYARD_TYPE()
+d_levels['A_lt_0.625mm'] = d_params(
+    toe = 0.55,
+    toe_round = '0.2f', # two place even decimal
+    heel = 0.45,
+    heel_round = '0.1f',
+    side = 0.01,
+    side_round = '0.2f',
+    court_ex = 0.5,
+)
+
+d_levels['B_lt_0.625mm'] = d_params(
+    toe = 0.35,
+    toe_round = '0.2f', # two place even decimal
+    heel = 0.35,
+    heel_round = '0.2f',
+    side = -0.02,
+    side_round = '0.2f',
+    court_ex = 0.25,
+)
+
+d_levels['C_lt_0.625mm'] = d_params(
+    toe = 0.15,
+    toe_round = '0.2f',
+    heel = 0.25,
+    heel_round = '0.2f',
+    side = -0.04,
+    side_round = '0.2f',
+    court_ex = 0.1,
+)
+
 prefix = "SSOP-"
 
 desc = "SSOP package, {pnum}"
@@ -343,16 +333,12 @@ desc = "SSOP package, {pnum}"
 # length, width; 0.05mm line width fab layer; measurements are maximums
 ssop_lead_dims = [0.95, 0.38]
 
-
-
 for k in ssop.keys():
     
-    # extract information
-    pnum, lmin, lmax, wmin, wmax, wpmin, wpmax, hmax, pitch = ssop_pkg
-    nominal_l, nominal_w = ((lmax - lmin) / 2 + lmin), ((wmax - wmin) / 2 + wmin)    
-    pins = "{pnum}_".format(pnum=pnum)
-    dims = "{nominal_l:0.1f}x{nominal_w:0.1f}mm".format(nominal_l=nominal_l, nominal_w=nominal_w)
-    # set pad layers
+    prop = ssop[k]
+
+    name = prefix + k + 
+
     layers = ["F.Cu", "F.Paste", "F.Mask"]
 
     footprint_name = prefix + pins + dims
@@ -371,8 +357,8 @@ for k in ssop.keys():
     #     l,w = w,l
     # else 'LevelB': # pin 1 in lower left corner; rotated 90 from LevelA
     #     continue
-    pin_y_pos = (wpmax-wmax)/2+wmax
-    pin_y_neg = -(wpmax-wmax)/2-wmax
+    pin_y_pos = (bl_lmax-b_lmax)/2+b_lmax
+    pin_y_neg = -(bl_lmax-b_lmax)/2-b_lmax
     pad_l_start = [-(pitch*pnum/4-pitch/2), pin_y_pos/2]
     pad_r_start = [-(pitch*pnum/4-pitch/2), -pin_y_pos/2]
 
@@ -393,7 +379,7 @@ for k in ssop.keys():
     # kicad_mod.append(RectLine(start=[], end=[], layer='F.CrtYd'))
 
     # draw the fabrication outline
-    kicad_mod.append(RectLine(start=[lmax/2, -wmax/2], end=[-lmax/2, wmax/2], layer='F.Fab', width=0.15))
+    kicad_mod.append(RectLine(start=[b_wmax/2, -b_lmax/2], end=[-b_wmax/2, b_lmax/2], layer='F.Fab', width=0.15))
 
     # draw fab outlines for pads if selected as option
     # **TODO** if DRAW_PAD_FAB:
