@@ -51,7 +51,7 @@ class Pad(Node):
         self._initSolderPasteMargin(**kwargs)
         self._initLayers(**kwargs)
         self._initTrapezoidDelta(**kwargs) # requires trapezoid delta and horizontal / vertical direction
-        self._initRoundRectRatio(**kwargs)
+        self._initRoundRectRRatio(**kwargs)
         #self._initPadOutlineFab(**kwargs)
 
     def _initNumber(self, **kwargs):
@@ -101,16 +101,16 @@ class Pad(Node):
             if kwargs.get('rect_delta'):
                 pass
 
-    def _initRoundRectRatio(self, **kwargs):
+    def _initRoundRectRRatio(self, **kwargs):
         if self.shape in [Pad.SHAPE_ROUNDRECT]:
-            if not kwargs.get('roundrect_ratio'):
-                raise KeyError('roundrect ratio required for roundrect pad (just a ratio of pad size)')
-            if type(kwargs.get('roundrect_ratio')) in [float]:
-                self.roundrect_ratio = kwargs.get('roundrect_ratio')
+            if not kwargs.get('roundrect_rratio'):
+                raise KeyError('roundrect rratio required for roundrect pad (just a ratio of pad size)')
+            if type(kwargs.get('roundrect_rratio')) in [float]:
+                self.roundrect_rratio = kwargs.get('roundrect_rratio')
         ### TODO: Implement maximum radius of 0.20mm, maybe generate a warning?
         else:
-            self.roundrect_ratio = None
-            if kwargs.get('roundrect_ratio'):
+            self.roundrect_rratio = None
+            if kwargs.get('roundrect_rratio'):
                 pass
 
     def _initDrill(self, **kwargs):
@@ -151,7 +151,7 @@ class Pad(Node):
         render_strings.append('(rect_delta {})'.format(self.rect_delta))
         render_strings.append('(drill {})'.format(self.drill))
         render_strings.append('(layers {})'.format(' '.join(self.layers)))
-        render_strings.append('(roundrect_ratio {})'.format(self.roundrect_ratio))
+        render_strings.append('(roundrect_rratio {})'.format(self.roundrect_rratio))
 
         render_text = Node._getRenderTreeText(self)
         render_text += '({})'.format(' '.join(render_strings))

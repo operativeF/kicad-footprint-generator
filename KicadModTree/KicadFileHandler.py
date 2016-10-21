@@ -194,13 +194,16 @@ class KicadFileHandler(FileHandler):
             render_strings.append(node.getRealPosition(node.at).render('(at {x} {y})'))
 
         render_strings.append(node.size.render('(size {x} {y})'))
+        if node.shape in [Pad.SHAPE_TRAPEZE]:
+            render_strings.append('rect_delta {}'.format(node.rect_delta))
         if node.type in [Pad.TYPE_THT, Pad.TYPE_NPTH]:
             if node.drill.x == node.drill.y:
                 render_strings.append('(drill {})'.format(node.drill.x))
             else:
                 render_strings.append(node.drill.render('(drill oval {x} {y})'))
         render_strings.append('(layers {})'.format(' '.join(node.layers)))
-
+        if node.shape in [Pad.SHAPE_ROUNDRECT]:
+            render_strings.append('(roundrect_rratio {})'.format(node.roundrect_rratio))
         return '({})'.format(' '.join(render_strings))
 
     def _callUnserialize(self, lisp_obj):

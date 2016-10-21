@@ -17,14 +17,14 @@ along with kicad-footprint-generator. If not, see < http://www.gnu.org/licenses/
 
 ### All units are in millimeters
 
-DEFAULT_LAYER_WIDTH = {'F.SilkS': 0.15,
-                       'B.SilkS': 0.15,
-                       'F.CrtYd': 0.05,
-                       'B.CrtYd': 0.05,
-                       'F.Fab': 0.10,
-                       'B.Fab': 0.10,
-                       'F.Margin': 0.15,
-                       'B.Margin': 0.15}
+LAYER_WIDTH_DEFAULTS = {'F.SilkS': 0.15,
+                        'B.SilkS': 0.15,
+                        'F.CrtYd': 0.05,
+                        'B.CrtYd': 0.05,
+                        'F.Fab': 0.10,
+                        'B.Fab': 0.10,
+                        'F.Margin': 0.15,
+                        'B.Margin': 0.15}
 
 DEFAULT_WIDTH = 0.15
 
