@@ -207,7 +207,12 @@ if __name__ == '__main__':
             ]
 
             footprint.append(PolygoneLine(polygone=pin1))
+<<<<<<< HEAD
 
+=======
+            footprint.append(PolygoneLine(polygone=pin1,layer='F.Fab'))
+            
+>>>>>>> TERA-footprints/JST_PH_TO_MODTREE
             #Add a model
 <<<<<<< HEAD
             footprint.append(Model(filename="Connectors_JST.3dshapes/" + fp_name + ".step"))
