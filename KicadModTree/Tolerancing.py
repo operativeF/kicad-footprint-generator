@@ -4,17 +4,20 @@ from collections import namedtuple
 
 PART_PLACEMENT_TOL = 0.025
 PCB_LAND_FAB_TOL = 0.05
+INV_PART_PLACEMENT_TOL = 1 / PART_PLACEMENT_TOL
+INV_PCB_LAND_FAB_TOL = 1 / PCB_LAND_FAB_TOL
+
+joints = namedtuple('joint', [
+            'toe',
+            'heel',
+            'side',
+            'crtyd_ex'])
 
 def getJointParams(pkgtype, pitch, densitylvl):
     wb = load_workbook('C:/KicadRepo/kicad-footprint-generator/KicadModTree/JointParams.xlsx')
     if pkgtype in ['SOIC', 'SSOP', 'SOP', 'QFP']:
         sheet = wb.get_sheet_by_name('SOP_QFP')
-        joints = namedtuple('joint', [
-            'toe',
-            'heel',
-            'side',
-            'crtyd_ex',
-        ])
+        pitches = {}
         if pitch > 1.00:
             set_row = '3'
         elif pitch > 0.80 and pitch <= 1.00:
@@ -52,22 +55,16 @@ def getJointParams(pkgtype, pitch, densitylvl):
 
         return jointparams
 
-def generateGullWingPadDims(pkgparams, pkgtype, dlvl):
+def generateSMDPadDims(pkgparams, pkgtype, dlvl):
 
     densitylevel = getJointParams(pkgtype, pkgparams.e, dlvl)
 
-     # OLD: Ltol = pkgparams.E_max - pkgparams.E_min
     Ltol = sqrt((pkgparams.E_max - pkgparams.E_min)**2 + (2 * PCB_LAND_FAB_TOL)**2 + (2 * PART_PLACEMENT_TOL)**2)
-    print "LTol = ", Ltol
-    # OLD: Wtol = pkgparams.b_max - pkgparams.b_min
     Wtol = sqrt((pkgparams.b_max - pkgparams.b_min)**2 + (2 * PCB_LAND_FAB_TOL)**2 + (2 * PART_PLACEMENT_TOL)**2)
-    print "Wtol = ", Wtol
     Stol_rms = sqrt((pkgparams.E_max - pkgparams.E_min)**2 + 2 * (pkgparams.L_max - pkgparams.L_min)**2)
-    print "Stol_rms = ", Stol_rms
+
     Smin = pkgparams.E_min - 2 * pkgparams.L_max
-    print "Smin = ", Smin
     Smax = pkgparams.E_max - 2 * pkgparams.L_min
-    print "Smax = ", Smax
 
     Stol = Smax - Smin
     Sdiff = Stol - Stol_rms
@@ -81,12 +78,12 @@ def generateGullWingPadDims(pkgparams, pkgtype, dlvl):
     Xmax = pkgparams.b_min + 2*densitylevel.side + Wtol
     Zmax = pkgparams.E_min + 2*densitylevel.toe + Ltol
 
-    pad_y = round((((Zmax - Gmin) / 2) * (1 / PCB_LAND_FAB_TOL)), 0) / (1 / PCB_LAND_FAB_TOL)
-    pad_x = round(Xmax * (1 / PCB_LAND_FAB_TOL), 0) / (1 / PCB_LAND_FAB_TOL)
+    pad_y = round((((Zmax - Gmin) / 2) * INV_PCB_LAND_FAB_TOL), 0) / INV_PCB_LAND_FAB_TOL
+    pad_x = round(Xmax * INV_PCB_LAND_FAB_TOL, 0) / INV_PCB_LAND_FAB_TOL
 
     return pad_x, pad_y
 
-def generatePthPadDims(comparams, densitylvl):
+def generatePTHPadDims(comparams, densitylvl):
     SPOKE_QTY = 4
     MINIMUM_ANNULAR_RING = 0.05
     SPOKE_WIDTH_PERCENTAGE = 0.75
@@ -99,4 +96,12 @@ def generatePthPadDims(comparams, densitylvl):
     pad_thermal_od = densitylvl.thermal_od + pad_diameter
     pad_thermal_gap = pad_thermal_od - pad_thermal_id
 
-    
+# def generate_BGA_PadDims():
+
+# def generate_LGA_PadDims():
+
+# def generate_CGA_PadDims():
+
+# def generateUnderbodyPadDims():
+
+# def generateNPTHPadDims():
