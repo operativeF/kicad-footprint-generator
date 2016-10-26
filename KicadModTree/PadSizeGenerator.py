@@ -1,5 +1,4 @@
 from math import sqrt
-from openpyxl import load_workbook
 from collections import namedtuple
 
 PART_PLACEMENT_TOL = 0.025
@@ -13,58 +12,21 @@ joints = namedtuple('joint', [
             'side',
             'crtyd_ex'])
 
-def getJointParams(pkgtype, pitch, densitylvl):
-    wb = load_workbook('C:/KicadRepo/kicad-footprint-generator/KicadModTree/JointParams.xlsx')
-    if pkgtype in ['SOIC', 'SSOP', 'SOP', 'QFP']:
-        sheet = wb.get_sheet_by_name('SOP_QFP')
-        pitches = {}
-        if pitch > 1.00:
-            set_row = '3'
-        elif pitch > 0.80 and pitch <= 1.00:
-            set_row = '4'
-        elif pitch > 0.65 and pitch <= 0.80:
-            set_row = '5'
-        elif pitch > 0.50 and pitch <= 0.65:
-            set_row = '6'
-        elif pitch > 0.40 and pitch <= 0.50:
-            set_row = '7'
-        elif pitch < 0.40:
-            set_row = '8'
-        else:
-            return "Invalid parameter"
-        
-        if densitylvl == 'A':
-            set_range = "JKLM"
-        elif densitylvl == 'B':
-            set_range = "FGHI"
-        elif densitylvl == 'C':
-            set_range = "BCDE"
-        else:
-            return "Invalid range"
-        tv = set_range[0] + set_row
-        hv = set_range[1] + set_row
-        sv = set_range[2] + set_row
-        cv = set_range[3] + set_row
+ssopj = joints(
+    toe = 0.25,
+    heel = 0.25,
+    side = 0.03,
+    crtyd_ex = 0.25,
+)
 
-        jointparams = joints(
-        toe = sheet[("{}".format(tv))].value,
-        heel = sheet[("{}".format(hv))].value,
-        side = sheet[("{}".format(sv))].value,
-        crtyd_ex = sheet[("{}".format(cv))].value,
-        )
+def generateSMDPadDims(pkgparams):
 
-        return jointparams
+    Ltol = sqrt((pkgparams.Emax - pkgparams.Emin)**2 + (2 * PCB_LAND_FAB_TOL)**2 + (2 * PART_PLACEMENT_TOL)**2)
+    Wtol = sqrt((pkgparams.bmax - pkgparams.bmin)**2 + (2 * PCB_LAND_FAB_TOL)**2 + (2 * PART_PLACEMENT_TOL)**2)
+    Stol_rms = sqrt((pkgparams.Emax - pkgparams.Emin)**2 + 2 * (pkgparams.Lmax - pkgparams.Lmin)**2)
 
-def generateSMDPadDims(pkgparams, pkgtype, dlvl):
-
-    densitylevel = getJointParams(pkgtype, pkgparams.e, dlvl)
-
-    Ltol = sqrt((pkgparams.E_max - pkgparams.E_min)**2 + (2 * PCB_LAND_FAB_TOL)**2 + (2 * PART_PLACEMENT_TOL)**2)
-    Wtol = sqrt((pkgparams.b_max - pkgparams.b_min)**2 + (2 * PCB_LAND_FAB_TOL)**2 + (2 * PART_PLACEMENT_TOL)**2)
-    Stol_rms = sqrt((pkgparams.E_max - pkgparams.E_min)**2 + 2 * (pkgparams.L_max - pkgparams.L_min)**2)
-
-    Smin = pkgparams.E_min - 2 * pkgparams.L_max
-    Smax = pkgparams.E_max - 2 * pkgparams.L_min
+    Smin = pkgparams.Emin - 2 * pkgparams.Lmax
+    Smax = pkgparams.Emax - 2 * pkgparams.Lmin
 
     Stol = Smax - Smin
     Sdiff = Stol - Stol_rms
@@ -74,9 +36,9 @@ def generateSMDPadDims(pkgparams, pkgtype, dlvl):
 
     Htol = sqrt((n_Smax - n_Smin)**2 + (2* PART_PLACEMENT_TOL)**2 + (2 * PCB_LAND_FAB_TOL)**2)
 
-    Gmin = n_Smax - 2*densitylevel.heel - Htol
-    Xmax = pkgparams.b_min + 2*densitylevel.side + Wtol
-    Zmax = pkgparams.E_min + 2*densitylevel.toe + Ltol
+    Gmin = n_Smax - 2*ssopj.heel - Htol
+    Xmax = pkgparams.bmin + 2*ssopj.side + Wtol
+    Zmax = pkgparams.Emin + 2*ssopj.toe + Ltol
 
     pad_y = round((((Zmax - Gmin) / 2) * INV_PCB_LAND_FAB_TOL), 0) / INV_PCB_LAND_FAB_TOL
     pad_x = round(Xmax * INV_PCB_LAND_FAB_TOL, 0) / INV_PCB_LAND_FAB_TOL

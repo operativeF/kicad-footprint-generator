@@ -18,7 +18,7 @@ along with kicad-footprint-generator. If not, see < http://www.gnu.org/licenses/
 
 class FileHandler(object):
     '''
-    implement basic methodes to read and write footprints
+    implement basic methods to read and write footprints
     '''
 
     def __init__(self, kicad_mod):
