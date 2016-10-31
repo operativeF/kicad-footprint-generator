@@ -8,6 +8,7 @@ from KicadModTree.nodes.specialized.PadArray import PadArray
 from KicadModTree.nodes.base.Pad import Pad
 from KicadModTree.PadSizeGenerator import generateSMDPadDims
 import KicadModTree.Rules as rules
+from KicadModTree.JointParameters import *
 
 pkgparams = namedtuple("Params", [
     'Dmin',
@@ -56,18 +57,13 @@ def make_pkg_comp(params, **kwargs):
     fN  = params.fN
     ZERO_ORIENTATION = params.ort
 
-    Dnom = (Dmax - Dmin) + Dmin
-    E1nom = (E1max - E1min) + E1min
-
     if params.epad:
-        D2min = params.epad[0]
-        D2max = params.epad[1]
-        E2min = params.epad[2]
-        E2max = params.epad[3]
+        E2min = params.epad[0]
+        E2max = params.epad[1]
+        D2min = params.epad[2]
+        D2max = params.epad[3]
     
-    # get nominal dimensions
-    Dnom = ( Dmax - Dmin ) + Dmin
-    E1nom = ( E1max - E1min ) + E1min
+    fprefix = fN.split('-', 1)[0]
 
     # get footprint name
     fpName = fN
@@ -84,28 +80,33 @@ def make_pkg_comp(params, **kwargs):
 
     # get text reference size so it fits in the fab layer 
     # get length of reference Text
-    # text_size = round(text_length / Dmin, 1) - 0.1
-    # size = [text_size, text_size]
-    # text_width = 0.1 * text_size
+    text_height = 1
+    text_length = len(fN)
+    text_size = round(Dmax / text_length, 1) - 0.1
+    text_width = 0.1 * text_size
 
     kicad_mod.append(Text(type='value', 
                           text=fN, 
-                          at=[0, 0], 
+                          at=[0, 0],
+                          size=[text_size, text_size],
+                          thickness=text_width,
                           layer='F.Fab'))
     
     pin_y_pos = (Emax - E1max) / 2 + E1max
     pin_y_neg = -(Emax - E1max) / 2 - E1max
 
+    # get joint parameters
+    if fprefix in SOP_QFP_PKGS:
+        joints = get_sop_qfp_joints(e, 'B')
+    toe, heel, side, crtyd_ex = joints
     # get pad measurements
-    pad_x, pad_y = generateSMDPadDims(params)
-
-    # draw the pads
+    pad_x, pad_y = generateSMDPadDims(params, joints)
     
-    # Dual row package, pin 1 in upper left corner; Zero Orientation Level B
-    if (npx and ZERO_ORIENTATION == 'B') and (not npy): 
+    # Dual row package, pin 1 in upper left corner; Zero Orientation Level A
+    if (npx and ZERO_ORIENTATION == 'A') and (not npy): 
 
-        center_left = [pin_y_neg / 2, 0]
-        center_right = [pin_y_pos / 2, 0]
+        center_left = [pin_y_neg / 2.0, 0]
+        center_right = [pin_y_pos / 2.0, 0]
         x_space = 0
         y_space = e
         pad_x, pad_y = pad_y, pad_x
@@ -137,11 +138,50 @@ def make_pkg_comp(params, **kwargs):
         kicad_mod.append(pa_left)
         kicad_mod.append(pa_right)
 
-    # Dual row package, pin 1 in upper left corner; Zero Orientation Level A
-    if (npx and ZERO_ORIENTATION == 'A') and (not npy):
+        if params.epad:
+            epad_y = D2max - D2min + D2min
+            epad_x = E2max - E2min + E2min
 
-        center_left = [0, pin_y_pos / 2]
-        center_right = [0, pin_y_neg / 2]
+            kicad_mod.append(Pad(number = 2 * npx + 1,
+                                 type = Pad.TYPE_SMT,
+                                 layers = layers,
+                                 shape = Pad.SHAPE_RECT,
+                                 size = [epad_x, epad_y],
+                                 at = [0, 0]))
+
+        Dpad = ((pad_y * npx) + (e - pad_y) * (npx - 1)) / 2.0 + DEFAULT_WIDTH * 2.0
+
+        if Dpad > (Dmax / 2.0):
+            Dq = Dpad
+        else:
+            Dq = Dmax / 2.0
+
+        kicad_mod.append(Line(start=[E1max/2.0, -Dq], end=[-E1max/2.0, -Dq], width=DEFAULT_WIDTH, layer='F.SilkS'))
+        kicad_mod.append(Line(start=[E1max/2.0, -Dq], end=[E1max/2.0, -Dpad], width=DEFAULT_WIDTH, layer='F.SilkS'))
+        kicad_mod.append(Line(start=[-E1max/2.0, -Dq], end=[-E1max/2.0, -Dpad], width=DEFAULT_WIDTH, layer='F.SilkS'))
+        kicad_mod.append(Line(start=[-E1max/2.0, -Dpad], end=[-Emax/2.0 - toe, -Dpad], width=DEFAULT_WIDTH, layer='F.SilkS'))
+        # mirrored for bottom
+        kicad_mod.append(Line(start=[E1max/2.0, Dq], end=[-E1max/2.0, Dq], width=DEFAULT_WIDTH, layer='F.SilkS'))
+        kicad_mod.append(Line(start=[E1max/2.0, Dpad], end=[E1max/2.0, Dq], width=DEFAULT_WIDTH, layer='F.SilkS'))
+        kicad_mod.append(Line(start=[-E1max/2.0, Dpad], end=[-E1max/2.0, Dq], width=DEFAULT_WIDTH, layer='F.SilkS'))
+
+        # fab outline parameters
+        fab_outline = [
+            {'y': -Dmax/2.0 + 1,'x': -E1max/2.0},
+            {'y': Dmax/2.0,'x': -E1max/2.0},
+            {'y': Dmax/2.0,'x': E1max/2.0},
+            {'y': -Dmax/2.0,'x': E1max/2.0},
+            {'y': -Dmax/2.0,'x': -E1max/2.0 + 1},
+            {'y': -Dmax/2.0 + 1,'x': -E1max/2.0},
+        ]
+        # draw the fab outline
+        kicad_mod.append(PolygoneLine(polygone=fab_outline, layer='F.Fab', width=DEFAULT_WIDTH))
+
+    # Dual row package, pin 1 in lower left corner; Zero Orientation Level B
+    elif (npx and ZERO_ORIENTATION == 'B') and (not npy):
+
+        center_left = [0, pin_y_pos / 2.0]
+        center_right = [0, pin_y_neg / 2.0]
         x_space = e
         y_space = 0
 
@@ -172,8 +212,20 @@ def make_pkg_comp(params, **kwargs):
         kicad_mod.append(pa_left)
         kicad_mod.append(pa_right)
 
-    # Quad row package, pin 1 lower left corner, Zero Orientation Level A
-    if (npx and npy and ZERO_ORIENTATION == 'A'):
+        # draw the fabrication outline
+        fab_outline = [
+            {'x': -Dmax/2.0,'y': -E1max/2.0},
+            {'x': Dmax/2.0,'y': -E1max/2.0},
+            {'x': Dmax/2.0,'y': E1max/2.0},
+            {'x': -Dmax/2.0 + 1,'y': E1max/2.0},
+            {'x': -Dmax/2.0,'y': -E1max/2.0 + 1},
+            {'x': -Dmax/2.0,'y': -E1max/2.0},
+        ]
+        kicad_mod.append(PolygoneLine(polygone=fab_outline, layer='F.Fab', width=DEFAULT_WIDTH))
+
+
+    # Quad row package, pin 1 lower left corner, Zero Orientation Level B
+    elif (npx and npy and ZERO_ORIENTATION == 'B'):
         center_left = [pin_y_neg / 2, 0]
         center_right = [pin_y_pos / 2, 0]
         center_top = [0, pin_y_neg / 2]
@@ -232,8 +284,8 @@ def make_pkg_comp(params, **kwargs):
         kicad_mod.append(pa_top)
         kicad_mod.append(pa_bottom)
     
-    # Quad row package, pin 1 upper left corner, Zero Orientation Level B
-    if (npx and npy and ZERO_ORIENTATION == 'B'):
+    # Quad row package, pin 1 upper left corner, Zero Orientation Level A
+    elif (npx and npy and ZERO_ORIENTATION == 'A'):
         center_left = [pin_y_neg / 2, 0]
         center_right = [pin_y_pos / 2, 0]
         center_top = [0, pin_y_neg / 2]
@@ -291,39 +343,15 @@ def make_pkg_comp(params, **kwargs):
         kicad_mod.append(pa_right)
         kicad_mod.append(pa_top)
         kicad_mod.append(pa_bottom)
-
-    if ZERO_ORIENTATION == 'A':
-        outline = [
-        {'x': -Dnom/2,'y': -E1nom/2},
-        {'x': Dnom/2,'y': -E1nom/2},
-        {'x': Dnom/2,'y': E1nom/2},
-        {'x': -Dnom/2 + 1,'y': E1nom/2},
-        {'x': -Dnom/2,'y': -E1nom/2 + 1},
-        {'x': -Dnom/2,'y': -E1nom/2},]
-        kicad_mod.append(PolygoneLine(polygone=outline, layer='F.Fab', width=0.12))
     
-    elif ZERO_ORIENTATION == 'B':
-        outline = [
-        {'x': -Dnom/2 + 1,'y': -E1nom/2},
-        {'x': Dnom/2,'y': -E1nom/2},
-        {'x': Dnom/2,'y': E1nom/2},
-        {'x': -Dnom/2,'y': E1nom/2},
-        {'x': -Dnom/2,'y': -E1nom/2 + 1},
-        {'x': -Dnom/2 + 1,'y': -E1nom/2},]
-        kicad_mod.append(PolygoneLine(polygone=outline, layer='F.Fab', width=0.12))
     else:
-        print "Invalid orientation (must be A or B)"
-    # create silkscreen
-
-    # add designator for pin #1
-
-    # draw the courtyard
+        print "Not a valid set of pad parameters."
 
     # draw fab outlines for pads if selected as option
     # TODO: if DRAW_PAD_FAB:
 
     # add model
-    kicad_mod.append(Model(filename="${{KISYS3DMOD}}/Housings_SSOP/{fp_name}.{model_type}".format(
+    kicad_mod.append(Model(filename="Housings_SSOP/{fp_name}.{model_type}".format(
                            fp_name = fN, 
                            model_type = rules.MODEL_3D_TYPE, 
                            at=[0, 0, 0], 

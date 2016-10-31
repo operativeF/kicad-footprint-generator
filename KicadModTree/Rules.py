@@ -17,8 +17,8 @@ along with kicad-footprint-generator. If not, see < http://www.gnu.org/licenses/
 
 ### All units are in millimeters
 
-LAYER_WIDTH_DEFAULTS = {'F.SilkS': 0.15,
-                        'B.SilkS': 0.15,
+LAYER_WIDTH_DEFAULTS = {'F.SilkS': 0.12,
+                        'B.SilkS': 0.12,
                         'F.CrtYd': 0.05,
                         'B.CrtYd': 0.05,
                         'F.Fab': 0.10,
@@ -26,7 +26,7 @@ LAYER_WIDTH_DEFAULTS = {'F.SilkS': 0.15,
                         'F.Margin': 0.15,
                         'B.Margin': 0.15}
 
-DEFAULT_WIDTH = 0.15
+DEFAULT_WIDTH = 0.12
 
 # Affects component orientation; see IPC-7351B/C
 # ZERO_ORIENTATION = ['LevelA', 'LevelB']
@@ -48,8 +48,6 @@ ASSY_OUTLINE_POLARITY_NOTCH = 1.00
 
 DRAW_PAD_FAB = True
 
-ORIGIN_PLACEMENT = ['Centroid', 'Pin_1']
-
 # Placed on Courtyard layer(s); 0.05 width
 ORIGIN_CROSSHAIR = {'CircleDiameter': 0.50, 'CrosshairLengths': 0.70}
 
@@ -68,10 +66,5 @@ FABRICATION_TOL = 0.05
 # Component density levels; affects pads, courtyard
 DENSITY_LEVEL = ['Least', 'Nominal', 'Most']
 
-SILK_CLEARANCE = 0.15
-SILK_OUTLINES = ['MAX', 'NOM', 'MIN']
-SILK_OUTLINE_ROUNDING = 0.01
-
 ### DEFAULTS ###
-DEFAULT_SILK_OUTLINE = 'MAX'
 MODEL_3D_TYPE = 'step'
