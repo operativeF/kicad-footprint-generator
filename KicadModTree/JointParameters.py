@@ -163,7 +163,7 @@ def get_sop_qfp_joints(pitch, dlvl):
     elif 0.4 < pitch <= 0.5:
         return SOP_QFP['0.4GT_0.5LT'][dlvl]
 
-    elif pitch < 0.4:
+    elif pitch <= 0.4:
         return SOP_QFP['0.4LT'][dlvl]
         
     else:

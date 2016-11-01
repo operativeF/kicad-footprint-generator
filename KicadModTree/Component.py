@@ -58,15 +58,11 @@ def make_pkg_comp(params, **kwargs):
     ZERO_ORIENTATION = params.ort
 
     if params.epad:
-        E2min = params.epad[0]
-        E2max = params.epad[1]
-        D2min = params.epad[2]
-        D2max = params.epad[3]
+        E2min, E2max, D2min, D2max = params.epad
     
     fprefix = fN.split('-', 1)[0]
 
     # get footprint name
-    fpName = fN
     kicad_mod = Footprint(fN)
 
     kicad_mod.setDescription("test")
@@ -90,7 +86,8 @@ def make_pkg_comp(params, **kwargs):
                           at=[0, 0],
                           size=[text_size, text_size],
                           thickness=text_width,
-                          layer='F.Fab'))
+                          layer='F.Fab',
+                          rotation=90))
     
     pin_y_pos = (Emax - E1max) / 2 + E1max
     pin_y_neg = -(Emax - E1max) / 2 - E1max
@@ -244,7 +241,7 @@ def make_pkg_comp(params, **kwargs):
                            y_spacing = e)
 
         pa_right = PadArray(pincount = npx, 
-                            initial = 2 * npx, # 2 * npx + npy, 
+                            initial = 2 * npx, 
                             center = center_right,
                             increment = -1, 
                             layers = layers, 
@@ -256,7 +253,7 @@ def make_pkg_comp(params, **kwargs):
                             y_spacing = e)
 
         pa_bottom = PadArray(pincount = npy, 
-                            initial = 1, # npx + 1, 
+                            initial = 1,
                             center = center_bottom,
                             increment = 1, 
                             layers = layers, 
@@ -268,7 +265,7 @@ def make_pkg_comp(params, **kwargs):
                             y_spacing = 0)
 
         pa_top = PadArray(pincount = npy, 
-                            initial = 2 * npx + npy, # 2 * npx + 2 * npy, 
+                            initial = 2 * npx + npy,
                             center = center_top,
                             increment = -1, 
                             layers = layers, 
