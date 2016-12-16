@@ -71,14 +71,12 @@ def make_pkg_comp(params, **kwargs):
 
     kicad_mod.append(Text(type='reference', 
                           text='REF**', 
-                          at=[0, -3], 
+                          at=[0, 0], 
                           layer='F.SilkS'))
 
     # get text reference size so it fits in the fab layer 
     # get length of reference Text
-    text_height = 1
-    text_length = len(fN)
-    text_size = round(Dmax / text_length, 1) - 0.1
+    text_size = round(Dmax / len(fN), 1)
     text_width = 0.1 * text_size
 
     kicad_mod.append(Text(type='value', 
